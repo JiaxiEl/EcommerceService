@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.AccountService.util.JwtUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Optional;
 @RequestMapping("/api/accounts")
 @RequiredArgsConstructor
 public class AccountController {
-
+    private final JwtUtil jwtUtil;
     private final AccountService accountService;
 
     @PostMapping("/register")
@@ -60,17 +61,29 @@ public class AccountController {
     public ResponseEntity<Map<String, Object>> login(@RequestBody AccountDto loginDto) {
         Optional<AccountDto> accountOpt = accountService.getAccountByEmail(loginDto.getEmail());
 
-        if (accountOpt.isPresent() && accountService.verifyPassword(loginDto.getPassword(), accountOpt.get().getPassword())) {
-            Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("message", "Login successful");
-            responseBody.put("user", accountOpt.get());
+        if (accountOpt.isPresent()) {
+            AccountDto account = accountOpt.get();
 
-            return ResponseEntity.ok(responseBody);
+            if (accountService.verifyPassword(loginDto.getPassword(), account.getPassword())) {
+                String token = jwtUtil.generateToken(account.getEmail());
+
+                Map<String, Object> responseBody = new HashMap<>();
+                responseBody.put("message", "Login successful");
+                responseBody.put("token", token);
+                responseBody.put("user", account);
+                account.setPassword(null);
+
+                return ResponseEntity.ok(responseBody);
+            } else {
+                Map<String, Object> responseBody = new HashMap<>();
+                responseBody.put("message", "Invalid credentials");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+            }
         } else {
             Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("message", "Invalid credentials");
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+            responseBody.put("message", "Account not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
     }
+
 }

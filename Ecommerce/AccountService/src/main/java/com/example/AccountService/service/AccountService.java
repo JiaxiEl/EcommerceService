@@ -4,6 +4,7 @@ import com.example.AccountService.dto.AccountDto;
 import com.example.AccountService.entity.Account;
 import com.example.AccountService.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,9 +14,11 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public AccountDto createAccount(AccountDto accountDto) {
         Account account = AccountDto.toEntity(accountDto);
+        account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
         Account savedAccount = accountRepository.save(account);
         return AccountDto.fromEntity(savedAccount);
     }
@@ -42,7 +45,7 @@ public class AccountService {
         accountRepository.deleteById(id);
     }
 
-    public boolean verifyPassword(String rawPassword, String storedPassword) {
-        return rawPassword.equals(storedPassword);
+    public boolean verifyPassword(String rawPassword, String hashedPassword) {
+        return passwordEncoder.matches(rawPassword, hashedPassword);
     }
 }

@@ -15,17 +15,18 @@ import java.util.Date;
 public class JwtUtil {
 
     private final SecretKey secretKey;
+    private final long expirationTime;
 
-    // Load JWT secret from environment variable or properties file
-    public JwtUtil(@Value("${jwt.secret}") String secret) {
+    public JwtUtil(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration:36000000}") long expirationTime) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        this.expirationTime = expirationTime;
     }
 
     public String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Token valid for 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }

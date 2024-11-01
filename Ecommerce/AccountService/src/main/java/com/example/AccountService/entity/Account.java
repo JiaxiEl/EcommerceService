@@ -3,7 +3,6 @@ package com.example.AccountService.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -39,8 +38,10 @@ public class Account {
     private String paymentMethod;
 
     @CreatedDate
+    @Column(name = "create_time", updatable = false)
     private LocalDateTime createTime;
 
     @UpdateTimestamp
+    @Column(name = "update_date_time")
     private LocalDateTime updateDateTime;
 }
