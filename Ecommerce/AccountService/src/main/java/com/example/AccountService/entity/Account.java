@@ -3,7 +3,6 @@ package com.example.AccountService.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -20,6 +19,29 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "email", unique = true)
+    private String email;
+
     @Column(name = "username")
     private String username;
+
+    @Column(name = "password")
+    private String password;
+
+    @Column(name = "shipping_address")
+    private String shippingAddress;
+
+    @Column(name = "billing_address")
+    private String billingAddress;
+
+    @Column(name = "payment_method")
+    private String paymentMethod;
+
+    @CreatedDate
+    @Column(name = "create_time", updatable = false)
+    private LocalDateTime createTime;
+
+    @UpdateTimestamp
+    @Column(name = "update_date_time")
+    private LocalDateTime updateDateTime;
 }
