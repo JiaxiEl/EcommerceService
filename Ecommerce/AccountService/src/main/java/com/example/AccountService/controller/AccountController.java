@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.AccountService.util.JwtUtil;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,17 +18,20 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/accounts")
 @RequiredArgsConstructor
+@Tag(name = "Account Controller", description = "API for managing accounts")
 public class AccountController {
     private final JwtUtil jwtUtil;
     private final AccountService accountService;
 
     @PostMapping("/register")
+    @Operation(summary = "Register a new account")
     public ResponseEntity<AccountDto> registerAccount(@RequestBody AccountDto accountDto) {
         AccountDto createdAccount = accountService.createAccount(accountDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAccount);
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get account by ID")
     public ResponseEntity<AccountDto> getAccountById(@PathVariable Long id) {
         return accountService.getAccountById(id)
                 .map(ResponseEntity::ok)
@@ -33,6 +39,7 @@ public class AccountController {
     }
 
     @GetMapping("/email")
+    @Operation(summary = "Get account by Email")
     public ResponseEntity<AccountDto> getAccountByEmail(@RequestParam String email) {
         return accountService.getAccountByEmail(email)
                 .map(ResponseEntity::ok)
@@ -40,6 +47,7 @@ public class AccountController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update account")
     public ResponseEntity<AccountDto> updateAccount(@PathVariable Long id, @RequestBody Map<String, String> requestBody) {
         String password = requestBody.get("password");
 
@@ -52,12 +60,14 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete account")
     public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login account")
     public ResponseEntity<Map<String, Object>> login(@RequestBody AccountDto loginDto) {
         Optional<AccountDto> accountOpt = accountService.getAccountByEmail(loginDto.getEmail());
 

@@ -3,11 +3,13 @@ package com.example.AccountService.dto;
 import com.example.AccountService.entity.Account;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AccountDto {
 
     private Long id;
@@ -31,14 +33,14 @@ public class AccountDto {
     }
 
     public static Account toEntity(AccountDto dto) {
-        Account account = new Account();
-        account.setId(dto.getId());
-        account.setEmail(dto.getEmail());
-        account.setUsername(dto.getUsername());
-        account.setPassword(dto.getPassword());
-        account.setShippingAddress(dto.getShippingAddress());
-        account.setBillingAddress(dto.getBillingAddress());
-        account.setPaymentMethod(dto.getPaymentMethod());
-        return account;
+        return Account.builder()
+                .id(dto.getId())
+                .email(dto.getEmail())
+                .username(dto.getUsername())
+                .password(dto.getPassword())
+                .shippingAddress(dto.getShippingAddress())
+                .billingAddress(dto.getBillingAddress())
+                .paymentMethod(dto.getPaymentMethod())
+                .build();
     }
 }
