@@ -21,8 +21,13 @@ public class ItemController {
 
     @PostMapping
     @Operation(summary = "Add a new item")
-    public ResponseEntity<ItemDto> addItem(@RequestBody ItemDto itemDto) {
-        return new ResponseEntity<>(itemService.createItem(itemDto), HttpStatus.CREATED);
+    public ResponseEntity<?> addItem(@RequestBody ItemDto itemDto) {
+        try {
+            ItemDto createdItem = itemService.createItem(itemDto);
+            return new ResponseEntity<>(createdItem, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 
     @GetMapping

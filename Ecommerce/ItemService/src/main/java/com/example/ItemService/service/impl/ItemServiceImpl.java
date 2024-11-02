@@ -7,6 +7,7 @@ import com.example.ItemService.dto.ItemDto;
 import com.example.ItemService.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +21,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto createItem(ItemDto itemDto) {
-        Item newItem = toItemEntity(itemDto);
-        Item savedItem = itemsRepository.save(newItem);
-        return toItemDto(savedItem);
+        try {
+            Item newItem = toItemEntity(itemDto);
+            Item savedItem = itemsRepository.save(newItem);
+            return toItemDto(savedItem);
+        } catch (DuplicateKeyException e) {
+            throw new RuntimeException("UPC already exists: " + itemDto.getUpc(), e);
+        }
     }
 
     @Override
