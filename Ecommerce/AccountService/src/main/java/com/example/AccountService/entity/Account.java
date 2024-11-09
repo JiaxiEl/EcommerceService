@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -40,6 +41,19 @@ public class Account {
 
     @Column(name = "payment_method")
     private String paymentMethod;
+
+    @Column(name = "account_balance")
+    private Double accountBalance;
+
+    @ElementCollection
+    @CollectionTable(name = "order_history", joinColumns = @JoinColumn(name = "account_id"))
+    @Column(name = "order_id")
+    private List<String> orderHistory; // Track orders associated with the account
+
+    @ElementCollection
+    @CollectionTable(name = "payment_history", joinColumns = @JoinColumn(name = "account_id"))
+    @Column(name = "transaction_id")
+    private List<String> paymentHistory; // Track payment transactions
 
     @CreatedDate
     @Column(name = "create_time", updatable = false)

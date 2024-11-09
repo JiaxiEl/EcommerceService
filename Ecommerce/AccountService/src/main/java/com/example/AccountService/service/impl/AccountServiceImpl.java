@@ -1,10 +1,12 @@
 package com.example.AccountService.service.impl;
 
 import com.example.AccountService.dto.AccountDto;
+import com.example.AccountService.dto.PaymentEvent;
 import com.example.AccountService.entity.Account;
 import com.example.AccountService.repository.AccountRepository;
 import com.example.AccountService.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto createAccount(AccountDto accountDto) {
         Account account = AccountDto.toEntity(accountDto);
         account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
+        account.setAccountBalance(accountDto.getAccountBalance());
         Account savedAccount = accountRepository.save(account);
         return AccountDto.fromEntity(savedAccount);
     }
@@ -55,4 +58,34 @@ public class AccountServiceImpl implements AccountService {
     public boolean verifyPassword(String rawPassword, String hashedPassword) {
         return passwordEncoder.matches(rawPassword, hashedPassword);
     }
+
+    @Override
+    public Optional<AccountDto> updateAccountBalance(Long accountId, Double amount) {
+        return accountRepository.findById(accountId).map(account -> {
+            double newBalance = account.getAccountBalance() + amount;
+            if (newBalance < 0) {
+                throw new IllegalArgumentException("Insufficient balance.");
+            }
+            account.setAccountBalance(newBalance);
+            Account updatedAccount = accountRepository.save(account);
+            return AccountDto.fromEntity(updatedAccount);
+        });
+    }
+
+/*    @KafkaListener(topics = "payment-topic", groupId = "account-service")
+    public void handlePaymentUpdate(PaymentEvent paymentEvent) {
+        Optional<Account> accountOpt = accountRepository.findByEmail(paymentEvent.getEmail());
+        if (accountOpt.isPresent()) {
+            Account account = accountOpt.get();
+            if (paymentEvent.getStatus().equalsIgnoreCase("COMPLETED")) {
+                double newBalance = account.getAccountBalance() - paymentEvent.getAmount();
+                if (newBalance < 0) {
+                    throw new IllegalArgumentException("Insufficient balance for the payment.");
+                }
+                account.setAccountBalance(newBalance);
+                account.getPaymentHistory().add(paymentEvent.getTransactionId());
+                accountRepository.save(account);
+            }
+        }
+    }*/
 }

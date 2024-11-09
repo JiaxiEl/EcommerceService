@@ -19,6 +19,7 @@ public class AccountDto {
     private String shippingAddress;
     private String billingAddress;
     private String paymentMethod;
+    private Double accountBalance;
 
     public static AccountDto fromEntity(Account account) {
         return new AccountDto(
@@ -28,7 +29,8 @@ public class AccountDto {
                 account.getPassword(),
                 account.getShippingAddress(),
                 account.getBillingAddress(),
-                account.getPaymentMethod()
+                account.getPaymentMethod(),
+                account.getAccountBalance()
         );
     }
 
@@ -41,6 +43,7 @@ public class AccountDto {
                 .shippingAddress(dto.getShippingAddress())
                 .billingAddress(dto.getBillingAddress())
                 .paymentMethod(dto.getPaymentMethod())
+                .accountBalance(dto.getAccountBalance())
                 .build();
     }
 }

@@ -96,4 +96,18 @@ public class AccountController {
         }
     }
 
+    @GetMapping("/{id}/balance")
+    @Operation(summary = "Get account balance by ID")
+    public ResponseEntity<Double> getAccountBalance(@PathVariable Long id) {
+        Optional<AccountDto> accountOpt = accountService.getAccountById(id);
+        return accountOpt.map(account -> ResponseEntity.ok(account.getAccountBalance()))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}/update-balance")
+    @Operation(summary = "Update account balance")
+    public ResponseEntity<AccountDto> updateAccountBalance(@PathVariable Long id, @RequestParam Double amount) {
+        Optional<AccountDto> updatedAccountOpt = accountService.updateAccountBalance(id, amount);
+        return updatedAccountOpt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    }
 }

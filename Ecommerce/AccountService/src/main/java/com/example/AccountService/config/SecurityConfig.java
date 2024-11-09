@@ -29,10 +29,8 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/accounts/login", "/api/accounts/register","/**", "/js/**", "/css/**", "/images/**", "/**/*.html").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(new JwtAuthenticationFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().permitAll() // Permit all requests without authentication
+                );
 
         return http.build();
     }

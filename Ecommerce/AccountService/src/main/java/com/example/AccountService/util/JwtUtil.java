@@ -1,10 +1,13 @@
 package com.example.AccountService.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +17,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
     private final SecretKey secretKey;
     private final long expirationTime;
 
@@ -23,20 +27,29 @@ public class JwtUtil {
     }
 
     public String generateToken(String email) {
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+        logger.debug("Generated JWT token for email {}: {}", email, token);
+        return token;
     }
 
     public Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            logger.debug("Extracted claims from token: {}", claims);
+            return claims;
+        } catch (JwtException e) {
+            logger.error("Invalid JWT token", e);
+            throw new RuntimeException("Invalid JWT token", e);
+        }
     }
 
     public String extractEmail(String token) {

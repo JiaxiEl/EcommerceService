@@ -4,11 +4,10 @@ import com.example.ItemService.entity.Item;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ItemsRepository extends MongoRepository<Item, String> {
-    List<Item> findItemsByCategory(String category);
-    Item findItemByItemId(String id);
-    long deleteItemByItemId(String id);
+    Optional<Item> findByUpc(String upc);
+
 }
